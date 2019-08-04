@@ -27,3 +27,13 @@ Doing some work
 
 * tgn_is_working
 
+Function which returns true when threads are working and all
+structs are ok else returns false. Can be used as condition
+for cycles.
+
+* tgn_send_msg
+
+Functions for sending message to another client of the network.
+There are 2 argiments for function:
+1. Hash of client which will be receive your message.
+2. Text of message.
