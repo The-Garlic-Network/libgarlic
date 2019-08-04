@@ -1,0 +1,29 @@
+libgarlic library.
+==================
+libgarlic - C/C++ Library fo creating projects based on the
+gralic network. This lib has simple API for usage.
+
+Initialisation
+**************
+
+* the_garlic_network
+
+This must be called before using the library. This function
+without arguments. When you call it, library creates database
+generates public and secret keys for encryption, starts
+threads for sending and receiving packages.
+
+* tgn_stop
+
+This may be called at the end of the program.
+
+* tgn_restart
+
+For starting threads again. This function should be called
+after tgn_stop.
+
+Doing some work
+***************
+
+* tgn_is_working
+
