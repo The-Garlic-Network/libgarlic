@@ -38,6 +38,17 @@ There are 2 argiments for function:
 1. Hash of client which will be receive your message.
 2. Text of message.
 
+* tgn_myhash
+
+Getting your public key. This public key is as an uniq login in
+the network. Returns char pointer in hex format.
+
+* tgn_callback
+
+Argument for this function is pointer to your function which will
+be called when was received new message. Your function must has
+prototype like this - void callback(const char *, const char *);
+
 ********
 
 Examples of usege you can find here:
