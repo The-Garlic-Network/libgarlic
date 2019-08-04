@@ -1,6 +1,6 @@
 libgarlic
 =========
-libgarlic - User C/C++ library fo creating projects based on the
+libgarlic - User C/C++ library for creating projects based on the
 gralic network. This lib has simple API for usage.
 
 Initialisation
