@@ -37,3 +37,8 @@ Functions for sending message to another client of the network.
 There are 2 argiments for function:
 1. Hash of client which will be receive your message.
 2. Text of message.
+
+
+
+                               mr.rva
+                        <odenscp@gmail.com>
