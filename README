@@ -48,6 +48,8 @@ the network. Returns char pointer in hex format.
 Argument for this function is pointer to your function which will
 be called when was received new message. Your function must has
 prototype like this - void callback(const char *, const char *);
+when first argument is - hash of sender and second - body of 
+message.
 
 ********
 
