@@ -1,108 +1,213 @@
 /**
-*	nodes.cpp - Модуль отвечающий за работу
-*	со списком известных нод.
+*	nodes.cpp - Source file of decentralized
+*	network TGN.
 *
 *	@mrrva - 2019
 */
 #include "include/nodes.hpp"
 /**
-*	Используемые пространства имен и объекты.
+*	Needed namespaces.
 */
 using namespace std;
 /**
-*	_nodes::set_nodes - Функция извлечения нод
-*	из базы данных в список.
+*	_nodes::_nodes - Constructor of _nodes class.
 */
-void _nodes::set_nodes(void)
+_nodes::_nodes(void)
 {
-	map<string, string> l = tindb.get_nodes();
+	this->last_req = system_clock::now();
+}
+/**
+*	_nodes::db_select - Selecting all exist nodes from
+*	database with adding to the struct.
+*/
+void _nodes::db_select(void)
+{
+	map<string, string> list = tgndb.select_node();
 	struct tgn_node node;
-	unsigned char *tmp;
+	unsigned char *hash;
 
-	for (size_t i = 0; i < l.size(); i++) {
-		if (l[i].second.length() != HASHSIZE
-			|| l[i].first.length() < 6) {
-			tindb.remove_node(l[i].first);
-			continue;
-		}
-
-		tmp = hex2bin<HASHSIZE>(l[i].second);
-
-		if (tmp == nullptr) {
-			tindb.remove_node(l[i].first);
-			continue;
-		}
-
-		memcpy(node.hash, tmp, HASHSIZE);
-		node.ip = l[i].first;
+	for (auto &p : list) {
+		hash = hex2bin<HASHSIZE>(p.second);
+		memcpy(node.hash, hash, HASHSIZE);
+		node.ip = p.first;
+		node.used = false;
 
 		this->nodes.push_back(node);
-		delete[] tmp;
+
+		delete[] hash;
 	}
 }
 /**
-*	_nodes::remove_node - Удаление ноды из списка
-*	и базы данных.
-*
-*	@ip - Ip адрес ноды.
+*	_nodes::size - Size of unused nodes in the list.
 */
-void _nodes::remove_node(string ip)
+size_t _nodes::size(void)
 {
-	vector<struct tgn_node>::iterator it;
+	size_t size = 0;
 
-	if (this->nodes.size() == 0
-		|| ip.length() < 6)
-		return;
+	this->mute.lock();
 
-	it = this->nodes.begin();
-
-	for (; it != this->nodes.end(); it++)
-		if ((*it).ip == ip) {
-			tindb.remove_node((*it).ip);
-			this->nodes.erase(it);
-			break;
+	for (auto &p : this->nodes) {
+		if (p.used == true) {
+			continue;
 		}
-}
-/**
-*	_nodes::new_node - Добавление новой ноды в
-*	общий список и базу данных.
-*
-*	@node - Структура ноды.
-*/
-void _nodes::new_node(struct tgn_node node)
-{
-	vector<struct tgn_node>::iterator it;
-	int cmp = 0, hs = HASHSIZE;
-	string hash;
 
-	if (bytes_sum<hs>(node.hash) == 0x00
-		|| node.ip.length() < 6)
-		return;
-
-	it = this->nodes.begin();
-
-	for (; it != this->nodes.end(); it++) {
-		cmp = memcmp((*it).hash, node.hash, hs);
-
-		if (cmp == 0 || (*it).ip == node.ip)
-			return;
+		size++;
 	}
 
-	hash = bin2hex<HASHSIZE>(node.hash);
-
-	this->nodes.push_back(node);
-	tindb.new_node(node.ip, hash);
+	this->mute.unlock();
+	return size;
 }
 /**
-*	_nodes::get_one - Отдает структуру первой
-*	ноды из общего списка.
+*	_nodes::size - Getting one unused node from the 
+*	list.
 */
 struct tgn_node _nodes::get_one(void)
 {
-	if (this->nodes.size() == 0) {
-		cout << "[E] Node list is empty.\n";
-		exit(1);
+	struct tgn_node node;
+
+	this->mute.lock();
+
+	for (auto &p : this->nodes) {
+		if (p.used == true) {
+			continue;
+		}
+
+		node = p;
+		break;
 	}
 
-	return *this->nodes.begin();
+	this->mute.unlock();
+	return node;
+}
+/**
+*	_nodes::remove_sddr - Removing node from the list
+*	by sockaddr_in.
+*
+*	@node - Struct sockaddr_in.
+*/
+void _nodes::remove_sddr(struct sockaddr_in &node)
+{
+	struct tgn_ipport ipport = ipport_get(node);
+	vector<struct tgn_node>::iterator it;
+
+	this->mute.lock();
+	it = this->nodes.begin();
+
+	for (; it != this->nodes.end(); it++) {
+		if ((*it).ip != ipport.ip) {
+			continue;
+		}
+
+		tgndb.remove_node(ipport.ip);
+		this->nodes.erase(it);
+		break;
+	}
+
+	this->mute.unlock();
+}
+/**
+*	_nodes::used_sddr - Set flug used to node by sockaddr_in.
+*
+*	@node - Struct sockaddr_in.
+*/
+void _nodes::used_sddr(struct sockaddr_in &node)
+{
+	struct tgn_ipport ipport = ipport_get(node);
+	vector<struct tgn_node>::iterator it;
+
+	this->mute.lock();
+	it = this->nodes.begin();
+
+	for (; it != this->nodes.end(); it++) {
+		if ((*it).ip == ipport.ip) {
+			(*it).used = true;
+			break;
+		}
+	}
+
+	this->mute.unlock();
+}
+/**
+*	_nodes::used_sddr - Set flug used to node by ip
+*	address of node.
+*
+*	@node_ip - Ip address.
+*/
+void _nodes::used_ip(string node_ip)
+{
+	vector<struct tgn_node>::iterator it;
+
+	this->mute.lock();
+	it = this->nodes.begin();
+
+	for (; it != this->nodes.end(); it++) {
+		if ((*it).ip == node_ip) {
+			(*it).used = true;
+			break;
+		}
+	}
+
+	this->mute.unlock();
+}
+/**
+*	_nodes::factual_size - Factual size of nodes in
+*	the list.
+*/
+size_t _nodes::factual_size(void)
+{
+	size_t size = 0;
+
+	this->mute.lock();
+	size = this->nodes.size();
+	this->mute.unlock();
+
+	return size;
+}
+/**
+*	_nodes::last_request - Getting a time of last request
+*	getting node list.
+*/
+time_point<system_clock> _nodes::last_request(void)
+{
+	return this->last_req;
+}
+/**
+*	_nodes::ping - Set new time for last_req var.
+*/
+void _nodes::ping(void)
+{
+	this->last_req = system_clock::now();
+}
+/**
+*	_nodes::add - Adding new node to the list and
+*	to the database.
+*
+*	@hash - Hash of node in byte format.
+*	@ip - Ip address.
+*/
+void _nodes::add(unsigned char *hash, string ip)
+{
+	size_t hs = HASHSIZE;
+	string hash_hex;
+
+	if (hash == nullptr || ip.length() < 6
+		|| !hash) {
+		return;
+	}
+
+	this->mute.lock();
+
+	for (auto &p : this->nodes) {
+		if (memcmp(hash, p.hash, hs) == 0
+			|| ip == p.ip) {
+			this->mute.unlock();
+			return;
+		}
+	}
+
+	hash_hex = bin2hex<HASHSIZE>(hash);
+	tgndb.remove_node(ip);
+
+	tgndb.new_node(ip, hash_hex);
+	this->mute.unlock();
 }

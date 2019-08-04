@@ -1,17 +1,17 @@
 /**
-*	database.cpp - Модуль отвечающий за работу
-*	с базой данных.
+*	database.cpp - Source file of decentralized
+*	network TGN.
 *
 *	@mrrva - 2019
 */
 #include "include/database.hpp"
 /**
-*	Используемые пространства имен и объекты.
+*	Needed namespaces.
 */
 using namespace std;
 /**
-*	_database::_database - Конструктор класса _database.
-*	Заполняет переменные и указатели.
+*	_database::_database - Constructor of the class.
+*	Init structs and vars.
 */
 _database::_database(void)
 {
@@ -26,83 +26,50 @@ _database::_database(void)
 	this->create_tables();
 }
 /**
-*	_database::get_nodes - Извлечение списка всех нод
-*	из базы данных.
+*	_database::~_database - Destructor of the class.
+*	Destroying of pointers.
 */
-map<string, string> _database::get_nodes(void)
+_database::~_database(void)
 {
-	string q = "SELECT * FROM `nodes`";
-	map<string, string> list;
-	sqlite3_stmt *rs = nullptr;
-	char *d1, *d2;
-
-	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
-
-	while (sqlite3_step(rs) == SQLITE_ROW) {
-		d1 = const_cast<char *>(sqlite3_column_text(rs, 1));
-		d2 = const_cast<char *>(sqlite3_column_text(rs, 2));
-
-		list.insert(string(tmp1), string(tmp2))
-	}
-
-	if (rs && rs != nullptr)
-		sqlite3_finalize(rs);
-
-	return list;
+	if (this->db != nullptr)
+		sqlite3_close(this->db);
 }
 /**
-*	_database::remove_node - Удаление ноды из базы данных.
+*	_database::set_var - Adding new settings to the
+*	database.
 *
-*	@ip - Ip адрес ноды.
+*	@name - Name of the option.
+*	@value - Value of the option.
 */
-void _database::remove_node(string ip)
+void _database::set_var(string name, string value)
 {
 	sqlite3_stmt *rs = nullptr;
 	string q;
 
-	if (ip.length() < 5) {
-		cout << "[E] _database::remove_node.\n";
+	if (name.length() < 2 || value.length() < 1) {
+		cout << "[E] _database::set_var(args..).\n";
 		return;
 	}
 
-	q = "DELETE FROM `nodes` WHERE `ip`='" + ip + "'";
+	this->mute.lock();
+
+	q = "INSERT INTO settings VALUES('" + name + "', '" +
+		value + "')";
 	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
-	sqlite3_step(rs);
+
+	if (sqlite3_step(rs) != SQLITE_DONE)
+		cout << "[E] _database::set_var.\n";
+
+	this->mute.unlock();
 
 	if (rs != nullptr)
 		sqlite3_finalize(rs);
 }
 /**
-*	_database::new_node - Добавление новой ноды в базу
-*	данных.
+*	_database::get_var - Selection needed data and
+*	settings from the database.
 *
-*	@ip - Ip адрес ноды.
-*	@hash - Hash ноды.
-*/
-void _database::new_node(string ip, string hash)
-{
-	sqlite3_stmt *rs = nullptr;
-	string q;
-
-	if (ip.length() < 6 || hash.length() != HASHSIZE) {
-		cout << "[E] _database::new_node.\n";
-		return;
-	}
-
-	q = "INSERT INTO `nodes` VALUES (NULL, '" + ip +
-		"', '" + hash + "');";
-
-	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
-	sqlite3_step(rs);
-
-	if (rs && rs != nullptr)
-		sqlite3_finalize(rs);
-}
-/**
-*	_database::get_var - Извлечения данных настроек из
-*	базы данных.
-*
-*	@name - Имя параметра.
+*	@name - Name of the option.
 */
 string _database::get_var(string name)
 {
@@ -116,8 +83,9 @@ string _database::get_var(string name)
 		return "";
 	}
 
+	this->mute.lock();
 
-	q = "SELECT `value` FROM `settgngs` WHERE `name`='" +
+	q = "SELECT `value` FROM `settings` WHERE `name`='" +
 		name + "'";
 	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
 
@@ -126,9 +94,12 @@ string _database::get_var(string name)
 
 		if (rs != nullptr)
 			sqlite3_finalize(rs);
+		this->mute.unlock();
 		
 		return "";
 	}
+
+	this->mute.unlock();
 
 	f_data = const_cast<uc *>(sqlite3_column_text(rs, 0));
 	r_data = string(reinterpret_cast<char *>(f_data));
@@ -139,10 +110,10 @@ string _database::get_var(string name)
 	return r_data;
 }
 /**
-*	_database::remove_var - Удаление данных настройки
-*	из базы данных.
+*	_database::remove_var - Removing vars from the
+*	database.
 *
-*	@name - Имя параметра.
+*	@name - Name of the option.
 */
 void _database::remove_var(string name)
 {
@@ -154,18 +125,113 @@ void _database::remove_var(string name)
 		return;
 	}
 
-	q = "DELETE FROM `settgngs` WHERE `name`='" +
+	this->mute.lock();
+
+	q = "DELETE FROM `settings` WHERE `name`='" +
 		name + "'";
 
 	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
 	sqlite3_step(rs);
 
+	this->mute.unlock();
+
 	if (rs != nullptr)
 		sqlite3_finalize(rs);
 }
 /**
-*	_database::create_tables - Функция создания таблиц
-*	базы данных сети.
+*	_database::remove_node - Removeing data of nodes
+*	from the database.
+*
+*	@ip - Ip address of node.
+*/
+void _database::remove_node(string ip)
+{
+	sqlite3_stmt *rs = nullptr;
+	string q;
+
+	if (ip.length() < 5) {
+		cout << "[E] _database::remove_node.\n";
+		return;
+	}
+
+	this->mute.lock();
+
+	q = "DELETE FROM `nodes` WHERE `ip`='" + ip + "'";
+	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
+	sqlite3_step(rs);
+
+	this->mute.unlock();
+
+	if (rs != nullptr)
+		sqlite3_finalize(rs);
+}
+/**
+*	_database::new_node - Adding new node to the
+*	database.
+*
+*	@ip - Ip address.
+*	@hash - Node's hash.
+*/
+void _database::new_node(string ip, string hash)
+{
+	sqlite3_stmt *rs = nullptr;
+	stringstream ss;
+
+	if (ip.length() < 5) {
+		cout << "[E] _database::new_node.\n";
+		return;
+	}
+
+	this->mute.lock();
+
+	ss << "INSERT INTO `nodes` VALUES (NULL, '" << ip
+		<< "', '" << hash << "');";
+	sqlite3_prepare_v2(this->db, ss.str().c_str(), -1,
+		&rs, NULL);
+	sqlite3_step(rs);
+
+	this->mute.unlock();
+
+	if (rs != nullptr)
+		sqlite3_finalize(rs);
+}
+/**
+*	_database::select_nodes - Selecting all nodes
+*	form the database.
+*/
+map<string, string> _database::select_node(void)
+{
+	string q = "SELECT * FROM `nodes`", f, s;
+	sqlite3_stmt *rs = nullptr;
+	map<string, string> list;
+
+	auto get_str = [](sqlite3_stmt *r, int n) {
+		typedef unsigned char uc;
+		unsigned char *data;
+		char *buffer;
+
+		data = const_cast<uc *>(sqlite3_column_text(r, n));
+		buffer = reinterpret_cast<char *>(data);
+
+		return string(buffer);
+	};
+
+	sqlite3_prepare_v2(this->db, q.c_str(), -1, &rs, NULL);
+
+	while (sqlite3_step(rs) == SQLITE_ROW) {
+		f = get_str(rs, 1);
+		s = get_str(rs, 2);
+		list.insert(pair<string, string>(f, s));
+	}
+
+	if (rs != nullptr)
+		sqlite3_finalize(rs);
+
+	return list;
+}
+/**
+*	_database::create_tables - Creating tables of the
+*	network's database.
 */
 void _database::create_tables(void)
 {
@@ -176,7 +242,7 @@ void _database::create_tables(void)
 		"NOT NULL,`hash` text NOT NULL);",
 
 		"CREATE TABLE IF NOT EXISTS    " \
-		"`settgngs` (`name` text NOT   " \
+		"`settings` (`name` text NOT   " \
 		"NULL, `value` text NOT NULL);"
 	};
 	sqlite3_stmt *rs = nullptr;
