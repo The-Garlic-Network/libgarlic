@@ -1,6 +1,6 @@
 libgarlic
 =========
-libgarlic - C/C++ Library fo creating projects based on the
+libgarlic - User C/C++ library fo creating projects based on the
 gralic network. This lib has simple API for usage.
 
 Initialisation
@@ -56,6 +56,8 @@ message.
 Examples of usege you can find here:
 https://github.com/The-Garlic-Network/Examples
 
+Server side source code of the network:
+https://github.com/The-Garlic-Network/The-Garlic-Network
 
 
                                mr.rva
