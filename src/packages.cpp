@@ -71,7 +71,6 @@ void _packages::resp_msg(tgnmsg &message)
 	}
 
 	if (type == RESPONSE_GARLIC) {
-		message.show_garlic();
 		this->garlic_status(message);
 		return;
 	}
@@ -349,23 +348,25 @@ void _packages::garlic_status(tgnmsg &message)
 	it = this->msgs.begin();
 
 	for (; it != this->msgs.end(); it++) {
-		if (memcmp(one.to, (*it).to, hs) != 0) {
+		if (memcmp(one.from, (*it).to, hs) != 0
+			|| (*it).status == GOOD_TARGET) {
 			continue;
 		}
 
 		(*it).ping = system_clock::now();
-cout << "eeeeee\n";
-		if (one.status < ERROR_ROUTE) {cout << "vvvvv\n";
+
+		if (one.status < ERROR_ROUTE) {
 			(*it).status = one.status;
 			this->mute.unlock();
 			break;
 		}
-cout << "Error:\n";
+
 		attempts = (*it).attempts + 1;
 		txt = message.garlic_msg();
+		this->msgs.erase(it);
 
 		this->new_garlic(one.to, txt, attempts);
-		this->msgs.erase(it);
+		
 		delete[] txt;
 		break;
 	}
