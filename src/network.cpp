@@ -237,7 +237,10 @@ bool _network::current_node(struct sockaddr_in &cr)
 
 	return c_node.ip == r_node.ip;
 }
-
+/**
+*	_network::switching_node - Switching to another node
+*	from list of nodes.
+*/
 void _network::switching_node(void)
 {
 	struct tgn_node node = tgnnodes.get_one();

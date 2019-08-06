@@ -71,6 +71,7 @@ void _packages::resp_msg(tgnmsg &message)
 	}
 
 	if (type == RESPONSE_GARLIC) {
+		message.show_garlic();
 		this->garlic_status(message);
 		return;
 	}
@@ -353,13 +354,13 @@ void _packages::garlic_status(tgnmsg &message)
 		}
 
 		(*it).ping = system_clock::now();
-
-		if (one.status < ERROR_ROUTE) {
+cout << "eeeeee\n";
+		if (one.status < ERROR_ROUTE) {cout << "vvvvv\n";
 			(*it).status = one.status;
 			this->mute.unlock();
 			break;
 		}
-
+cout << "Error:\n";
 		attempts = (*it).attempts + 1;
 		txt = message.garlic_msg();
 

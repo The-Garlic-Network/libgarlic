@@ -56,7 +56,7 @@ void the_garlic_network(void)
 	tgnnetwork.set_node(node);
 
 ///////////TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
-	string hash("aaaaaaaaaabbbbbbbbbbyyyyyyyyyyhhaaaaaaaaaabbbbbbbbbbyyyyyyyyyyhh");
+	string hash("cedf9127cef70e495836357ecdfb1ad76e0edef48945afca9cf28a749156094b");
 	string msg("Hello world!");
 	tgn_send_msg(hash.c_str(), msg.c_str());
 ///////////TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
@@ -112,6 +112,25 @@ bool tgn_is_working(void)
 
 	return recv && send;
 }
+
+const char *tgn_myhash(void)
+{
+	unsigned char *hash = tgnencryption.my_hash();
+	string hex_hash = bin2hex<HASHSIZE>(hash);
+
+	return hex_hash.c_str();
+}
+
+void tgn_callback(void (*callback)(const char *, const char *))
+{
+	bool status = received_messages.set_callback(callback);
+
+	if (!status) {
+		cout << "[W]: Incorrect pointer to function.\n";
+		return;
+	}
+}
+
 
 int main()
 {

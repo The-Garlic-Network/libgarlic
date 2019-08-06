@@ -32,6 +32,7 @@ class tgnmsg {
 		unsigned char *byte_key(void);
 		std::string str_key(void);
 		bool is_garlic(void);
+		void show_garlic(void);
 };
 
 #endif

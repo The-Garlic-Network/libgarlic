@@ -194,7 +194,6 @@ struct tgn_garlic tgnmsg::info_garlic(void)
 
 	return req;
 }
-
 /**
 *	tgnmsg::garlic_msg - Function of reading data from
 *	message block.
@@ -211,4 +210,67 @@ unsigned char *tgnmsg::garlic_msg(void)
 	memcpy(tmp, this->bytes + HEADERSIZE, TEXTSIZE);
 
 	return tmp;
+}
+
+void tgnmsg::show_garlic(void)
+{
+	struct tgn_garlic info;
+
+	if (this->length != FULLSIZE
+		|| this->bytes[0] == 0x00) {
+		cout << "[W]: Incorrect tgnmsg buffer.\n";
+		return;
+	}
+
+	cout << "[I]: Decoded garlic info.\n";
+
+	switch (this->bytes[0]) {
+	case REQUEST_GARLIC:
+		cout << "Message type: REQUEST_GARLIC\n";
+		break;
+
+	case RESPONSE_GARLIC:
+		cout << "Message type: RESPONSE_GARLIC\n";
+		break;
+
+	default:
+		cout << "[W]: Incorrect tgnmsg buffer.\n";
+		return;
+	}
+
+	info = this->info_garlic();
+
+	switch(info.status) {
+	case NEW_PACKAGE:
+		cout << "Garlic type: NEW_PACKAGE\n";
+		break;
+
+	case EMPTY_STATUS:
+		cout << "Garlic type: EMPTY_STATUS\n";
+		break;
+
+	case REQUEST_FIND:
+		cout << "Garlic type: REQUEST_FIND\n";
+		break;
+
+	case GOOD_SERVER:
+		cout << "Garlic type: GOOD_SERVER\n";
+		break;
+
+	case GOOD_TARGET:
+		cout << "Garlic type: GOOD_TARGET\n";
+		break;
+
+	case ERROR_ROUTE:
+		cout << "Garlic type: ERROR_ROUTE\n";
+		break;
+
+	case ERROR_TARGET:
+		cout << "Garlic type: ERROR_TARGET\n";
+		break;
+
+	default:
+		cout << "[W]: Incorrect garlic type.\n";
+		return;
+	}
 }
