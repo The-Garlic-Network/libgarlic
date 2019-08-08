@@ -203,12 +203,14 @@ struct tgn_pack _packages::get_one(void)
 
 		if (p.status == EMPTY_STATUS
 			&& time - p.ping >= 15s) {
+			p.ping = system_clock::now();
 			msg = p;
 			break;
 		}
 
 		if (p.status == REQUEST_FIND
 			&& time - p.ping >= 15s) {
+			p.ping = system_clock::now();
 			msg = p;
 			break;
 		}
@@ -348,7 +350,8 @@ void _packages::garlic_status(tgnmsg &message)
 	it = this->msgs.begin();
 
 	for (; it != this->msgs.end(); it++) {
-		if (memcmp(one.from, (*it).to, hs) != 0
+		if ((memcmp(one.from, (*it).to, hs) != 0
+			&& one.status != GOOD_TARGET)
 			|| (*it).status == GOOD_TARGET) {
 			continue;
 		}
@@ -357,6 +360,7 @@ void _packages::garlic_status(tgnmsg &message)
 
 		if (one.status < ERROR_ROUTE) {
 			(*it).status = one.status;
+			message.show_garlic();
 			this->mute.unlock();
 			break;
 		}
