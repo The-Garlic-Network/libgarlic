@@ -23,14 +23,13 @@
 #include <atomic>
 #include <sqlite3.h>
 #include <sodium.h>
-
-#define TGN_DEBUG 1;
 /**
 *	Project constants.
 */
 const short HEADERSIZE	= 500;
 const short TEXTSIZE	= 9000;
 const short HASHSIZE	= 32;
+const short MAXINPUT	= TEXTSIZE - crypto_box_SEALBYTES;
 const short FULLSIZE	= TEXTSIZE + HEADERSIZE;
 const short INFOSIZE	= HEADERSIZE - HASHSIZE - 1;
 const short PORT		= 2121;

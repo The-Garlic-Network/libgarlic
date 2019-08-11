@@ -134,18 +134,16 @@ unsigned char *_encryption::pack(unsigned char *text,
 	unsigned char *key)
 {
 	unsigned char *buffer = nullptr;
-	size_t len;
 
 	if (!text || !key) {
 		cout << "[E] _encryption::pack.\n";
 		return nullptr;
 	}
 
-	len = TEXTSIZE + 100 + crypto_box_SEALBYTES;
-	buffer = new unsigned char[len];
-	memset(buffer, 0x00, len);
+	buffer = new unsigned char[TEXTSIZE];
+	memset(buffer, 0x00, TEXTSIZE);
 
-	crypto_box_seal(buffer, text, TEXTSIZE, key);
+	crypto_box_seal(buffer, text, MAXINPUT, key);
 	return buffer;
 }
 /**
@@ -157,18 +155,16 @@ unsigned char *_encryption::pack(unsigned char *text,
 unsigned char *_encryption::unpack(unsigned char *text)
 {
 	unsigned char *buffer = nullptr;
-	size_t len;
 
 	if (!text) {
 		cout << "[E] _encryption::unpack.\n";
 		return nullptr;
 	}
 
-	len = TEXTSIZE + crypto_box_SEALBYTES;
-	buffer = new unsigned char[len];
-	memset(buffer, 0x00, len);
+	buffer = new unsigned char[MAXINPUT];
+	memset(buffer, 0x00, MAXINPUT);
 
-	if (crypto_box_seal_open(buffer, text, len,
+	if (crypto_box_seal_open(buffer, text, TEXTSIZE,
 		this->public_key, this->secret_key) != 0) {
 		cout << "[E] crypto_box_seal_open in "
 			<< "_encryption::unpack\n";

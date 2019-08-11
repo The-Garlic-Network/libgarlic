@@ -17,11 +17,11 @@
 */
 class _received {
 	private :
-		void (*function)(const char *, const char *);
+		void (*function)(char *, unsigned char *);
 
 	public :
-		bool set_callback(void (*callback)(const char *, const char *));
-		void operator<<(tgnmsg);
+		bool set_callback(void (*callback)(char *, unsigned char *));
+		void operator <<(tgnmsg);
 };
 /**
 *	Object of module controlling.

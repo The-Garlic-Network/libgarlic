@@ -1,34 +1,18 @@
-//
-//
-//
-//
-//	HERE WILL BE FUNCTIONS FOR CALLING FROM YOUR PROJECTS.
-//
-//
-//
-//
-//
-
-
-#include "include/encryption.hpp"
-#include "include/database.hpp"
-#include "include/network.hpp"
-#include "include/nodes.hpp"
-
-#include "include/packages.hpp"
-
+/**
+*	library.cpp - Source file of decentralized
+*	network TGN.
+*
+*	@mrrva - 2019
+*/
+#include "include/library.hpp"
+/**
+*	Needed namespaces.
+*/
 using namespace std;
-
-
-
-
-void tgn_send_msg(const char *, const char *);
-
-
-
-
-
-
+/**
+*	the_garlic_network - Initialization of the
+*	project.
+*/
 void the_garlic_network(void)
 {
 	string pub = tgndb.get_var("PUBLIC_KEY");
@@ -40,10 +24,11 @@ void the_garlic_network(void)
 		tgnencryption.set_keys_hex(pub, sec);
 		tgndb.set_var("PUBLIC_KEY", pub);
 		tgndb.set_var("SECRET_KEY", sec);
-		return;
+	}
+	else {
+		tgnencryption.set_keys_hex(pub, sec);
 	}
 
-	tgnencryption.set_keys_hex(pub, sec);
 	tgnnodes.db_select();
 
 	if (tgnnodes.size() == 0) {
@@ -54,20 +39,20 @@ void the_garlic_network(void)
 
 	node = tgnnodes.get_one();
 	tgnnetwork.set_node(node);
-
-///////////TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
-	string hash("cedf9127cef70e495836357ecdfb1ad76e0edef48945afca9cf28a749156094b");
-	string msg("Hello world!");
-	tgn_send_msg(hash.c_str(), msg.c_str());
-///////////TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 }
-
+/**
+*	tgn_stop - Stop all threads. Call the function
+*	when need to stop working.
+*/
 void tgn_stop(void)
 {
 	tgnnetwork.stop = true;
 	tgnnetwork.wait_threads();
 }
-
+/**
+*	tgn_restart - Restart threads. Call the function
+*	when need to start working after calling tgn_stop.
+*/
 void tgn_restart(void)
 {
 	struct tgn_node node;
@@ -81,30 +66,42 @@ void tgn_restart(void)
 	node = tgnnodes.get_one();
 	tgnnetwork.set_node(node);
 }
-
-void tgn_send_msg(const char *hash, const char *msg)
+/**
+*	tgn_send_msg - Function of sending byte packages
+*	to any client of the network.
+*
+*	@hash - Hash of the network client.
+*	@length - Length of package.
+*	@msg - Byte package.
+*/
+bool tgn_send_msg(const char *hash, size_t length,
+	unsigned char *msg)
 {
-	unsigned char *b_hash, b_msg[TEXTSIZE];
-	string hash_string(hash);
+	unsigned char *b_hash, b_msg[TEXTSIZE], *pack;
 	const size_t sz = HASHSIZE * 2;
-	size_t len = strlen(msg);
+	string hash_string(hash);
 
-	if (hash_string.length() != sz|| !hash
-		|| !msg || len + 1 > TEXTSIZE
-		|| len == 0) {
+	if (hash_string.length() != sz || !hash
+		|| !msg || length > MAXINPUT
+		|| length == 0) {
 		cout << "[E]: Incorrect args for tgn"
 			<< "_send_msg.\n";
-		return;
+		return false;
 	}
 
-	// encryption msg...
-	memset(b_msg, 0x00, TEXTSIZE);
-	memcpy(b_msg, msg, len + 1);
-	// end encryption
 	b_hash = hex2bin<sz>(hash_string);
-	tgnpacks.new_garlic(b_hash, b_msg, 0);
-}
+	memset(b_msg, 0x00, TEXTSIZE);
+	memcpy(b_msg, msg, length);
 
+	pack = tgnencryption.pack(b_msg, b_hash);
+	tgnpacks.new_garlic(b_hash, pack, 0);
+
+	return true;
+}
+/**
+*	tgn_is_working - Getting status of the network 
+*	threads.
+*/
 bool tgn_is_working(void)
 {
 	bool recv = tgnnetwork.th_s.joinable();
@@ -112,7 +109,10 @@ bool tgn_is_working(void)
 
 	return recv && send;
 }
-
+/**
+*	tgn_myhash - Returns user hash (public key) in
+*	hex format.
+*/
 const char *tgn_myhash(void)
 {
 	unsigned char *hash = tgnencryption.my_hash();
@@ -120,26 +120,38 @@ const char *tgn_myhash(void)
 
 	return hex_hash.c_str();
 }
-
-void tgn_callback(void (*callback)(const char *, const char *))
+/**
+*	tgn_callback - Function setting for calling when
+*	new package was received.
+*
+*	@callback - Pointer to function.
+*/
+void tgn_callback(void (*callback)(char *, unsigned char *))
 {
-	bool status = received_messages.set_callback(callback);
-
-	if (!status) {
-		cout << "[W]: Incorrect pointer to function.\n";
+	if (!received_messages.set_callback(callback)) {
+		cout << "[W]: Incorrect pointer to func.\n";
 		return;
 	}
 }
-
-
-int main()
+/**
+*	tgn_status - Getting status of sent package.
+*
+*	@id - Package id.
+*/
+/*int tgn_status(unsigned int id)
 {
-	the_garlic_network();
+	struct tgn_pack pack;
+	int status = -3;
 
-	while (tgn_is_working()) {
-		sleep(2);
+	if (!tgnpacks.find(id, pack)) {
+		cout << "[W]: Can't find needed pack.\n";
+		return status;
 	}
 
-cout << "aaa!!!!!!!!\n";
-	tgn_stop();
+	//
 }
+
+void tgn_rm_packlist(void)
+{
+
+}*/
