@@ -108,24 +108,47 @@ bool _packages::remove_one(enum tgn_htype type)
 	return status;
 }
 /**
+*	_packages::last_id - Returns last id of garlic
+*	package.
+*/
+size_t _packages::last_id(void)
+{
+	size_t id;
+
+	this->mute.lock();
+
+	if (this->msgs.size() == 0) {
+		this->mute.unlock();
+		return 0;
+	}
+
+	id = (*this->msgs.end()).id;
+	this->mute.unlock();
+	
+	return id;
+}
+/**
 *	_packages::new_garlic - New garlic message.
 *
 *	@hash - To whom (hash in byte format).
 *	@text - Message with TEXTSIZE size.
 *	@attempt - Attempt of sending.
+*	@rid - If package already exists - put it here.
 */
-void _packages::new_garlic(unsigned char *hash,
-	unsigned char *text, size_t attempt)
+size_t _packages::new_garlic(unsigned char *hash,
+	unsigned char *text, size_t attempt, size_t rid)
 {
+	size_t id = this->last_id();
 	struct tgn_garlic one;
 
 	if (hash == nullptr || !hash || text == nullptr
 		|| !text) {
 		cout << "[W]: Incorrect args for new "
 			<< "garlic message.\n";
-		return;
+		return 0;
 	}
 
+	one.id = (rid == 0) ? ++id : rid;
 	one.ping = system_clock::now();
 	one.status = NEW_PACKAGE;
 	one.attempts = attempt;
@@ -137,6 +160,8 @@ void _packages::new_garlic(unsigned char *hash,
 	this->mute.lock();
 	this->msgs.push_back(one);
 	this->mute.unlock();
+
+	return one.id;
 }
 /**
 *	_packages::first_ping - A time of creating first 
@@ -343,37 +368,101 @@ void _packages::garlic_status(tgnmsg &message)
 {
 	struct tgn_garlic one = message.info_garlic();
 	vector<struct tgn_garlic>::iterator it;
-	size_t attempts, hs = HASHSIZE;
-	unsigned char *txt;
+	size_t hs = HASHSIZE;
 
 	this->mute.lock();
 	it = this->msgs.begin();
 
 	for (; it != this->msgs.end(); it++) {
-		if ((memcmp(one.from, (*it).to, hs) != 0
+		if ((memcmp(one.from, (*it).to, hs) != 0 /// NOT CORRECT!!!
 			&& one.status != GOOD_TARGET)
 			|| (*it).status == GOOD_TARGET) {
 			continue;
 		}
 
 		(*it).ping = system_clock::now();
-
-		if (one.status < ERROR_ROUTE) {
-			(*it).status = one.status;
-			message.show_garlic();
-			this->mute.unlock();
-			break;
-		}
-
-		attempts = (*it).attempts + 1;
-		txt = message.garlic_msg();
-		this->msgs.erase(it);
-
-		this->new_garlic(one.to, txt, attempts);
-		
-		delete[] txt;
+		(*it).status = one.status;
+		message.show_garlic();
+		this->mute.unlock();
 		break;
 	}
 
 	this->mute.unlock();
+}
+/**
+*	_packages::garlic_resend - Trying to resend exists
+*	package.
+*
+*	@id - Id of package.
+*/
+bool _packages::garlic_resend(size_t id)
+{
+	vector<struct tgn_garlic>::iterator it;
+	unsigned char *txt;
+	bool done = false;
+	size_t atts;
+
+	this->mute.lock();
+	it = this->msgs.begin();
+
+	for (; it != this->msgs.end(); it++) {
+		if ((*it).id != id) {
+			continue;
+		}
+
+		atts = (*it).attempts + 1;
+		txt = (*it).text;
+		done = true;
+
+		this->new_garlic((*it).to, txt, atts,
+						(*it).id);
+		this->msgs.erase(it);
+		break;
+	}
+
+	this->mute.unlock();
+	return done;
+}
+/**
+*	_packages::remove_packages - Removing all packs
+*	in the list of garlic packages.
+*/
+void _packages::remove_packages(void)
+{
+	this->mute.lock();
+
+	if (this->msgs.size() == 0) {
+		this->mute.unlock();
+		return;
+	}
+
+	for (size_t i = 0; i < this->msgs.size(); i++) {
+		this->msgs.erase(this->msgs.begin() + i);
+	}
+
+	this->mute.unlock();
+}
+/**
+*	_packages::find - Find exists package in the list.
+*
+*	@id - Id of package.
+*	@buff - Buffer for returning data. 
+*/
+bool _packages::find(size_t id, struct tgn_garlic &buff)
+{
+	bool status = false;
+
+	this->mute.lock();
+
+	for (auto &p : this->msgs) {
+		if (p.id != id)
+			continue;
+
+		status = true;
+		buff = p;
+		break;
+	}
+
+	this->mute.unlock();
+	return status;
 }

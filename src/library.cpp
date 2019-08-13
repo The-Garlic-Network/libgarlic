@@ -74,19 +74,20 @@ void tgn_restart(void)
 *	@length - Length of package.
 *	@msg - Byte package.
 */
-bool tgn_send_msg(const char *hash, size_t length,
+size_t tgn_send_msg(const char *hash, size_t length,
 	unsigned char *msg)
 {
 	unsigned char *b_hash, b_msg[TEXTSIZE], *pack;
 	const size_t sz = HASHSIZE * 2;
 	string hash_string(hash);
+	size_t id;
 
 	if (hash_string.length() != sz || !hash
 		|| !msg || length > MAXINPUT
 		|| length == 0) {
 		cout << "[E]: Incorrect args for tgn"
 			<< "_send_msg.\n";
-		return false;
+		return 0;
 	}
 
 	b_hash = hex2bin<sz>(hash_string);
@@ -94,9 +95,9 @@ bool tgn_send_msg(const char *hash, size_t length,
 	memcpy(b_msg, msg, length);
 
 	pack = tgnencryption.pack(b_msg, b_hash);
-	tgnpacks.new_garlic(b_hash, pack, 0);
+	id = tgnpacks.new_garlic(b_hash, pack, 0, 0);
 
-	return true;
+	return id;
 }
 /**
 *	tgn_is_working - Getting status of the network 
@@ -134,24 +135,41 @@ void tgn_callback(void (*callback)(char *, unsigned char *))
 	}
 }
 /**
-*	tgn_status - Getting status of sent package.
+*	tgn_pack_status - Getting status of sent package.
 *
 *	@id - Package id.
 */
-/*int tgn_status(unsigned int id)
+enum tgn_status tgn_pack_status(size_t id)
 {
-	struct tgn_pack pack;
-	int status = -3;
+	struct tgn_garlic pack;
 
 	if (!tgnpacks.find(id, pack)) {
 		cout << "[W]: Can't find needed pack.\n";
-		return status;
+		return DOESNT_EXISTS;
 	}
 
-	//
+	return pack.status;
 }
-
-void tgn_rm_packlist(void)
+/**
+*	tgn_resend_package - Trying to resend exists package
+*	from the list of garlic packages.
+*
+*	@id - Package id.
+*/
+bool tgn_resend_package(size_t id)
 {
+	if (id == 0) {
+		cout << "[W]: Incorrect package id.\n";
+		return false;
+	}
 
-}*/
+	return tgnpacks.garlic_resend(id);
+}
+/**
+*	tgn_remove_packages - Removing all packs in the list
+*	of garlic packages.
+*/
+void tgn_remove_packages(void)
+{
+	tgnpacks.remove_packages();
+}

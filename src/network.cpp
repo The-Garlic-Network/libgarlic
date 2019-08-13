@@ -78,7 +78,7 @@ bool _network::start(void)
 	}
 
 	this->th_s = thread(&_network::thread_send, this);
-	this->th_r = thread(&_network::thread_resv, this);
+	this->th_r = thread(&_network::thread_recv, this);
 
 #ifdef TGN_DEBUG
 	cout << "[I] Threads started.\n";
@@ -157,10 +157,10 @@ void _network::thread_send(void)
 	}
 }
 /**
-*	_network::thread_resv - Module thread for receiving
+*	_network::thread_recv - Module thread for receiving
 *	packages from other members of the network.
 */
-void _network::thread_resv(void)
+void _network::thread_recv(void)
 {
 	size_t l = 0, fulls = FULLSIZE;
 	unsigned char buff[fulls];

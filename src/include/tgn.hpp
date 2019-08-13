@@ -61,6 +61,7 @@ enum tgn_htype {
 
 enum tgn_status {
 	NEW_PACKAGE		= 0xff,
+	DOESNT_EXISTS	= 0xfe,
 
 	EMPTY_STATUS	= 0x00,
 	REQUEST_FIND	= 0x01,
@@ -100,7 +101,7 @@ struct tgn_garlic {
 	unsigned char from[HASHSIZE];
 	unsigned char to[HASHSIZE];
 	enum tgn_status status;
-	size_t attempts;
+	size_t attempts, id;
 };
 /**
 *	Templates and functions of the project.

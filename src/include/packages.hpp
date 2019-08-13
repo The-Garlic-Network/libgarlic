@@ -23,16 +23,20 @@ class _packages {
 		std::mutex mute;
 
 		bool remove_one(enum tgn_htype);
+		size_t last_id(void);
 
 	public :
-		void new_garlic(unsigned char *, unsigned char *, size_t);
+		size_t new_garlic(unsigned char *, unsigned char *, size_t, size_t);
 		struct tgn_pack garlic_to_pack(struct tgn_garlic &);
 		time_point<system_clock> first_ping(void);
+		bool find(size_t, struct tgn_garlic &);
 		void system_request(enum tgn_htype);
 		void add_bytes(unsigned char *);
 		void nodes_response(tgnmsg &);
 		struct tgn_pack get_one(void);
 		void garlic_status(tgnmsg &);
+		void remove_packages(void);
+		bool garlic_resend(size_t);
 		void ping_packages(void);
 		void resp_msg(tgnmsg &);
 		size_t garlic_size(void);

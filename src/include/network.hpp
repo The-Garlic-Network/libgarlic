@@ -26,7 +26,7 @@ class _network {
 
 		void set_options(int &);
 		void thread_send(void);
-		void thread_resv(void);
+		void thread_recv(void);
 		bool start(void);
 
 	public :
