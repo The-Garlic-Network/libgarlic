@@ -172,5 +172,8 @@ int main() {
           // Just wait a little bit. Package during delivery.
           break;
      }
+     
+     tgn_stop();
+     return 0;
 }
 ```
