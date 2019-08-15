@@ -18,6 +18,7 @@ void body()
 	// Exit.
 	if (action == 2) {
 		tgn_stop();
+		return;
 	}
 
 	// If actions isn't a sending.
