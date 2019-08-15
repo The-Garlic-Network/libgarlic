@@ -7,9 +7,9 @@ The library for building your own project based on **The Garlic Network**.
 
 * **All logic is already written.** You don't need to understand how network
 works, library will do everything for you.
-* **Easy to understand.** There are just 10 API function for usage.
 * **Written on C++.** It Means the library can be adapted to any
 programmin language.
+* **Easy to understand.** There are just 10 API function for usage.
 
 Read more about libgarlic and The Garlic Network on the web-site https://garlic.network.
 
