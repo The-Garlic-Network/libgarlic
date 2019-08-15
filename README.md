@@ -136,7 +136,6 @@ int main() {
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "libgarlic.h"
 
 int main() {
