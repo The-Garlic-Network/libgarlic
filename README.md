@@ -12,6 +12,11 @@ works, library will do everything for you.
 programmin language.
 
 Read more about libgarlic and The Garlic Network on the web-site https://garlic.network.
+
+Dependencies:
+* libsqlite3
+* libsodium
+
 Full examples of usage you will get in `example` folder.
 
 ```C
