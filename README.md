@@ -75,8 +75,7 @@ int main() {
 void callback_fn(char *from, unsigned char *pack, size_t len) {
      printf("Was received new package from %s\n", from);
      // . . . 
-     free(from);
-     free(pack);
+     // Don't free from & pack pointers.
 }
 
 int main() {
