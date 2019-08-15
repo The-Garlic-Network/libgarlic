@@ -1,7 +1,7 @@
 # libgarlic
 
 <img src="https://github.com/mrrva/media/blob/master/libgarlic1.png" align="right"
-     alt="Storeon logo by Anton Lovchikov" width="160" height="160">
+     alt="libgarlic logo by mrrva" width="160" height="160">
 
 The library for building your own project based on **The Garlic Network**.
 
