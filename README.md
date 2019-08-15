@@ -31,23 +31,139 @@ int main() {
 ```
 
 ```C
-#include <stdio.h>
-#include <stdlib.h>
-#include "libgarlic.h"
 /** 
 * Example of getting own public hash (it's like an ip address in the internet).
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include "libgarlic.h"
+
 int main() {
   const char *hash;
 
   the_garlic_network();
-  // Getting and printing.
-  hash = tgn_myhash();
+ 
+  hash = tgn_myhash(); // Getting the hash.
   printf("My hash is - %s\n", hash);
   
   free(hash);
   tgn_stop();
   
   return 0;
+}
+```
+
+```C
+/** 
+* Example of callback function setting. Function will be called when was
+* received new package.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include "libgarlic.h"
+
+// @from - Sender (hash).
+// @pack - Byte array.
+// @len - length of byte array.
+void callback_fn(char *from, unsigned char *pack, size_t len) {
+     printf("Was received new package from %s\n", from);
+     // . . . 
+     free(from);
+     free(pack);
+}
+
+int main() {
+     the_garlic_network();
+     tgn_callback(callback_fn); // Callback function.
+     // . . .
+     tgn_stop();
+     return 0;
+}
+```
+
+```C
+/** 
+* Example of tgn server. When was received new package server will send
+* response.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "libgarlic.h"
+
+void callback_fn(char *from, unsigned char *pack, size_t len) {
+     // Convert char pointer to const char pointer.
+     const char *hash = (const char *)from;
+     char *text = "Hello dude!";
+     // Length of *text.
+     size_t length = 12;
+     // Byte array,
+     unsigned char buffer[length];
+     
+     // Copy text to byte array.
+     memcpy(buffer, text, length);
+     // Send package back.
+     tgn_send_msg(hash, length, buffer);
+
+     free(from);
+     free(pack);
+}
+
+int main() {
+     the_garlic_network();
+     tgn_callback(callback_fn);
+     
+     while (tgn_is_working()) {
+          // . . .
+     }
+     
+     tgn_stop();
+     return 0;
+}
+```
+
+```C
+/** 
+* Example of getting sent package status and try to resend package if
+* status code is ERROR_ROUTE or ERROR_TARGET.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "libgarlic.h"
+
+int main() {
+     // Vars and pointers.
+     enum tgn_status status;
+     size_t id;
+     // ...
+     
+     the_garlic_network();
+     // Send message and get id of pack.
+     id = tgn_send_msg(hash, 10, buffer);
+     
+     // ...
+     
+     // Getting status.
+     status = tgn_pack_status(id);
+     
+     switch (status) {
+     // Errors handler.
+     case ERROR_ROUTE:
+     case ERROR_TARGET:
+          // Error detected. Try to send pack again.
+          // Package resending by id.
+          tgn_resend_package(id);
+          break;
+          
+     case GOOD_TARGET:
+          // Package was received by target user.
+          break;
+          
+     case REQUEST_FIND:
+     case GOOD_SERVER:
+          // Just wait a little bit. Package during delivery.
+          break;
+     }
 }
 ```
