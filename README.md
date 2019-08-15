@@ -176,3 +176,9 @@ int main() {
      return 0;
 }
 ```
+All API functions you will find here: [garlic.h](https://github.com/The-Garlic-Network/libgarlic/blob/master/src/garlic.h)
+
+## Licensing
+libgarlic is licensed under the MIT. Check
+[LICENSE](https://github.com/The-Garlic-Network/libgarlic/blob/master/LICENSE) for the full
+license text.
