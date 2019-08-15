@@ -12,14 +12,16 @@ works, library will do everything for you.
 programmin language.
 
 Read more about libgarlic and The Garlic Network on the web-site https://garlic.network.
+Full examples of usage you will get in `example` folder.
 
 ```C
-#include <stdio.h>
-#include <stdlib.h>
-#include "libgarlic.h"
 /** 
 * Example of initialization and stopping of the libgarlic.
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include "libgarlic.h"
+
 int main() {
   // Start threads.
   the_garlic_network();
