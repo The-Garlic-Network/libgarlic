@@ -110,9 +110,7 @@ void callback_fn(char *from, unsigned char *pack, size_t len) {
      memcpy(buffer, text, length);
      // Send package back.
      tgn_send_msg(hash, length, buffer);
-
-     free(from);
-     free(pack);
+     // Don't free from & pack pointers.
 }
 
 int main() {
