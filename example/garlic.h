@@ -6,10 +6,8 @@
 */
 #ifndef LIB_GARLIC
 #define LIB_GARLIC
-/**
-*	Constant from sodium.h
-*/
-#define crypto_box_SEALBYTES 48
+//
+#include <sodium.h>
 /**
 *	Constant of maximum acceptable length of package
 *	for tgn_send_msg function.
@@ -51,7 +49,7 @@ void the_garlic_network(void);
 *	tgn_myhash - Returns user hash (public key) in
 *	hex format.
 */
-char *tgn_myhash(void);
+const char *tgn_myhash(void);
 /**
 *	tgn_is_working - Getting status of the network 
 *	threads.
@@ -75,7 +73,7 @@ void tgn_stop(void);
 *	@argument 2 - Length of package.
 *	@argument 3 - Byte package.
 */
-size_t tgn_send_msg(char *, size_t, unsigned char *);
+size_t tgn_send_msg(const char *, size_t, unsigned char *);
 /**
 *	tgn_pack_status - Getting status of sent package.
 *

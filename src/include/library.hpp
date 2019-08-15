@@ -20,15 +20,15 @@
 *	Functions' prototypes.
 */
 extern "C" {
-	void tgn_callback(void (*callback)(char *, unsigned char *));
-	size_t tgn_send_msg(const char *, size_t, unsigned char *);
+	void tgn_callback(void (*callback)(char *, unsigned char *, size_t));
+	size_t tgn_send_msg(char *, size_t, unsigned char *);
 	enum tgn_status tgn_status(size_t);
 	bool tgn_resend_package(size_t);
 	void tgn_remove_packages(void);
 	void the_garlic_network(void);
-	const char *tgn_myhash(void);
 	bool tgn_is_working(void);
 	void tgn_restart(void);
+	char *tgn_myhash(void);
 	void tgn_stop(void);
 }
 

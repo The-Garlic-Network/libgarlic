@@ -25,7 +25,7 @@ Full examples of usage you will get in `example` folder.
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "libgarlic.h"
+#include "garlic.h"
 
 int main() {
   // Start threads.
@@ -43,17 +43,17 @@ int main() {
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "libgarlic.h"
+#include "garlic.h"
 
 int main() {
-  const char *hash;
+  char *hash;
 
   the_garlic_network();
  
   hash = tgn_myhash(); // Getting the hash.
   printf("My hash is - %s\n", hash);
   
-  free(hash);
+  // Don't free hash pointer.
   tgn_stop();
   
   return 0;
@@ -67,7 +67,7 @@ int main() {
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "libgarlic.h"
+#include "garlic.h"
 
 // @from - Sender (hash).
 // @pack - Byte array.
@@ -95,11 +95,9 @@ int main() {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "libgarlic.h"
+#include "garlic.h"
 
 void callback_fn(char *from, unsigned char *pack, size_t len) {
-     // Convert char pointer to const char pointer.
-     const char *hash = (const char *)from;
      char *text = "Hello dude!";
      // Length of *text.
      size_t length = 12;
@@ -109,7 +107,7 @@ void callback_fn(char *from, unsigned char *pack, size_t len) {
      // Copy text to byte array.
      memcpy(buffer, text, length);
      // Send package back.
-     tgn_send_msg(hash, length, buffer);
+     tgn_send_msg(from, length, buffer);
      // Don't free from & pack pointers.
 }
 
@@ -133,7 +131,7 @@ int main() {
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "libgarlic.h"
+#include "garlic.h"
 
 int main() {
      // Vars and pointers.

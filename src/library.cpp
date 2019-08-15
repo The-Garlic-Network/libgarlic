@@ -74,7 +74,7 @@ void tgn_restart(void)
 *	@length - Length of package.
 *	@msg - Byte package.
 */
-size_t tgn_send_msg(const char *hash, size_t length,
+size_t tgn_send_msg(char *hash, size_t length,
 	unsigned char *msg)
 {
 	unsigned char *b_hash, b_msg[TEXTSIZE], *pack;
@@ -115,12 +115,12 @@ bool tgn_is_working(void)
 *	tgn_myhash - Returns user hash (public key) in
 *	hex format.
 */
-const char *tgn_myhash(void)
+char *tgn_myhash(void)
 {
 	unsigned char *hash = tgnencryption.my_hash();
 	string hex_hash = bin2hex<HASHSIZE>(hash);
 
-	return hex_hash.c_str();
+	return const_cast<char *>(hex_hash.c_str());
 }
 /**
 *	tgn_callback - Function setting for calling when

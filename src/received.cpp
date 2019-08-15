@@ -36,7 +36,9 @@ void _received::operator <<(tgnmsg message)
 	strcpy(hash, hex.c_str());
 	memcpy(&length, pack, 2);
 
-	this->function(hash, pack_fn, length);
+	if (length <= MAXINPUT - 2) {
+		this->function(hash, pack_fn, length);
+	}
 
 	delete[] b_hash;
 	delete[] pack;
