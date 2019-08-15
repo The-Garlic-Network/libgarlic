@@ -17,10 +17,10 @@
 */
 class _received {
 	private :
-		void (*function)(char *, unsigned char *);
+		void (*function)(char *, unsigned char *, size_t);
 
 	public :
-		bool set_callback(void (*callback)(char *, unsigned char *));
+		bool set_callback(void (*callback)(char *, unsigned char *, size_t));
 		void operator <<(tgnmsg);
 };
 /**

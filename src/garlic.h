@@ -10,7 +10,7 @@
 *	Constant of maximum acceptable length of package
 *	for tgn_send_msg function.
 */
-#define MAXINPUT 9000 - crypto_box_SEALBYTES;
+#define MAXINPUT 9000 - crypto_box_SEALBYTES - 2;
 /**
 *	tgn_status - Structure of package statuses.
 */
@@ -33,7 +33,7 @@ enum tgn_status {
 *
 *	@argument 1 - Pointer to function.
 */
-void tgn_callback(void (*callback)(char *, unsigned char *));
+void tgn_callback(void (*callback)(char *, unsigned char *, size_t));
 /**
 *	the_garlic_network - Initialization of the
 *	project.

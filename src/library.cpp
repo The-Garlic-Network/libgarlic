@@ -83,7 +83,7 @@ size_t tgn_send_msg(const char *hash, size_t length,
 	size_t id;
 
 	if (hash_string.length() != sz || !hash
-		|| !msg || length > MAXINPUT
+		|| !msg || length > MAXINPUT - 2
 		|| length == 0) {
 		cout << "[E]: Incorrect args for tgn"
 			<< "_send_msg.\n";
@@ -92,7 +92,8 @@ size_t tgn_send_msg(const char *hash, size_t length,
 
 	b_hash = hex2bin<sz>(hash_string);
 	memset(b_msg, 0x00, TEXTSIZE);
-	memcpy(b_msg, msg, length);
+	memcpy(b_msg + 2, msg, length);
+	memcpy(b_msg, &length, 2);
 
 	pack = tgnencryption.pack(b_msg, b_hash);
 	id = tgnpacks.new_garlic(b_hash, pack, 0, 0);
@@ -127,7 +128,7 @@ const char *tgn_myhash(void)
 *
 *	@callback - Pointer to function.
 */
-void tgn_callback(void (*callback)(char *, unsigned char *))
+void tgn_callback(void (*callback)(char *, unsigned char *, size_t))
 {
 	if (!received_messages.set_callback(callback)) {
 		cout << "[W]: Incorrect pointer to func.\n";

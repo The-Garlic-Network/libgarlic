@@ -17,9 +17,10 @@ using namespace std;
 */
 void _received::operator <<(tgnmsg message)
 {
-	unsigned char *b_hash, *pack, *buff;
 	const size_t len = HASHSIZE * 2;
-	char *hash;
+	unsigned char *b_hash, *pack, *buff, pack_fn[TEXTSIZE];
+	char hash[len + 1];
+	size_t length = 0;
 	string hex;
 
 	if (!this->function) {
@@ -29,14 +30,16 @@ void _received::operator <<(tgnmsg message)
 	b_hash = message.byte_key();
 	buff = message.garlic_msg();
 	hex = bin2hex<len>(b_hash);
-	hash = new char[len + 1];
-
 	pack = tgnencryption.unpack(buff);
-	strcpy(hash, hex.c_str());
 
-	this->function(hash, pack);
+	memcpy(pack_fn, pack + 2, MAXINPUT - 2);
+	strcpy(hash, hex.c_str());
+	memcpy(&length, pack, 2);
+
+	this->function(hash, pack_fn, length);
 
 	delete[] b_hash;
+	delete[] pack;
 	delete[] buff;
 }
 /**
@@ -46,7 +49,7 @@ void _received::operator <<(tgnmsg message)
 *	@callback - Pointer to function.
 */
 bool _received::set_callback(
-	void (*callback)(char *, unsigned char *))
+	void (*callback)(char *, unsigned char *, size_t))
 {
 	if (!callback || callback == nullptr) {
 		return false;
