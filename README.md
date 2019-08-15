@@ -3,7 +3,7 @@
 <img src="https://github.com/mrrva/media/blob/master/libgarlic1.png" align="right"
      alt="libgarlic logo by mrrva" width="160" height="160">
 
-The library for building your own project based on **The Garlic Network**.
+The library for building your own project based on [**The Garlic Network**](https://github.com/The-Garlic-Network/The-Garlic-Network).
 
 * **All logic is already written.** You don't need to understand how network
 works, library will do everything for you.
