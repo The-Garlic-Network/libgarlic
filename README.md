@@ -15,6 +15,8 @@ Read more about libgarlic and The Garlic Network on the web-site https://garlic.
 
 Dependencies: `libsqlite3` `libsodium`.
 
+---
+
 Full examples of usage you will get in `example` folder.
 
 ```C
