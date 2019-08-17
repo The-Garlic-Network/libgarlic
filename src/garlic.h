@@ -18,7 +18,7 @@
 /**
 *	Constant of hash size.
 */
-#define HASHSIZE 32
+#define HASHSIZE 64
 /**
 *	tgn_status - Structure of package statuses.
 */
