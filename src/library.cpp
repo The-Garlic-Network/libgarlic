@@ -119,8 +119,10 @@ char *tgn_myhash(void)
 {
 	unsigned char *hash = tgnencryption.my_hash();
 	string hex_hash = bin2hex<HASHSIZE>(hash);
+	char *buff = new char[HASHSIZE * 2 + 1];
 
-	return const_cast<char *>(hex_hash.c_str());
+	memcpy(buff, hex_hash.c_str(), HASHSIZE * 2 + 1);
+	return buff;
 }
 /**
 *	tgn_callback - Function setting for calling when
