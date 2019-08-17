@@ -50,5 +50,6 @@ int main()
 		body();
 	}
 
+	free(hash);
 	return 0;
 }
