@@ -13,9 +13,9 @@ programmin language.
 
 Read more about libgarlic and The Garlic Network on the web-site https://garlic.network.
 
-Supported platforms: `Linux` `Mac OS` ___(Windows will be later)___.
+Supported platforms: `Linux`, `Mac OS` *(Windows will be later)*.
 
-Dependencies: `libsqlite3` `libsodium`.
+Dependencies: `libsqlite3`, `libsodium`.
 
 ---
 
