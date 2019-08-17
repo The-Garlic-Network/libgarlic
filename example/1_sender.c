@@ -6,7 +6,7 @@
 
 void body()
 {
-	char buffer[MAXINPUT], hash[HASHSIZE + 1];
+	char *buffer, hash[HASHSIZE + 1];
 	int action = 0;
 
 	// Get current action.
@@ -26,16 +26,14 @@ void body()
 		return;
 	}
 
-	// Get message for sending (length - 10).
-	printf("Write message: ");
-	scanf("%10s", buffer);
-
 	// Get address to send.
 	printf("Write address: ");
-	scanf("%32s", hash);
+	scanf("%s", hash);
+
+	buffer = "Hey dude!";
 
 	// Send package.
-	tgn_send_msg(hash, 10, (unsigned char *)buffer);
+	tgn_send_msg(hash, strlen(buffer), (unsigned char *)buffer);
 }
 
 int main()

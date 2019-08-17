@@ -141,7 +141,7 @@ void _network::thread_send(void)
 
 		if (tgnpacks.size() == 0) {
 			tgnpacks.system_request(REQUEST_PING);
-			cout << "Ping pack.\n";
+			//cout << "Ping pack.\n";
 			sleep(2);
 		}
 

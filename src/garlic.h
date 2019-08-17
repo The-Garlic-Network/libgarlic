@@ -86,7 +86,7 @@ enum tgn_status tgn_pack_status(size_t);
 *	tgn_resend_package - Trying to resend exists package
 *	from the list of garlic packages.
 *
-*	@id - Package id.
+*	@argument 1 - Package id.
 */
 bool tgn_resend_package(size_t);
 /**

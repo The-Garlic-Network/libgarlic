@@ -17,9 +17,9 @@ using namespace std;
 */
 void _received::operator <<(tgnmsg message)
 {
-	const size_t len = HASHSIZE * 2;
-	unsigned char *b_hash, *pack, *buff, pack_fn[TEXTSIZE];
-	char hash[len + 1];
+	char hash[HASHSIZE * 2 + 1];
+	unsigned char *pack, *buff;
+	struct tgn_garlic info;
 	size_t length = 0;
 	string hex;
 
@@ -27,20 +27,18 @@ void _received::operator <<(tgnmsg message)
 		return;
 	}
 
-	b_hash = message.byte_key();
+	info = message.info_garlic();
 	buff = message.garlic_msg();
-	hex = bin2hex<len>(b_hash);
-	pack = tgnencryption.unpack(buff);
+	hex = bin2hex<HASHSIZE>(info.from);
 
-	memcpy(pack_fn, pack + 2, MAXINPUT - 2);
+	pack = tgnencryption.unpack(buff);
 	strcpy(hash, hex.c_str());
 	memcpy(&length, pack, 2);
 
 	if (length <= MAXINPUT - 2) {
-		this->function(hash, pack_fn, length);
+		this->function(hash, pack + 2, length);
 	}
 
-	delete[] b_hash;
 	delete[] pack;
 	delete[] buff;
 }
