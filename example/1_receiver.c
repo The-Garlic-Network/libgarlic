@@ -30,5 +30,6 @@ int main()
 	// Cycle.
 	while (tgn_is_working());
 
+	free(hash);
 	return 0;
 }
