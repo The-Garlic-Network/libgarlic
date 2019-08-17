@@ -53,7 +53,7 @@ int main() {
   hash = tgn_myhash(); // Getting the hash.
   printf("My hash is - %s\n", hash);
   
-  // Freeing hash pointer
+  // Don't forget about free.
   free(hash);
   // Stop threads.
   tgn_stop();
