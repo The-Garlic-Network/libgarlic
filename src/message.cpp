@@ -142,6 +142,8 @@ void tgnmsg::create(enum tgn_htype type,
 		return;
 	}
 
+	memset(this->bytes, 0x00, FULLSIZE);
+
 	key = tgnencryption.my_hash();
 	this->length = HEADERSIZE;
 

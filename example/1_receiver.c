@@ -12,15 +12,19 @@ void fn_callback(char *hash, unsigned char *buff,
 	char msg[MAXINPUT];
 	// Copy bytes to string buffer.
 	memcpy(msg, buff, len);
-	buff[len] = 0x00;
+	msg[len] = 0x00;
 
 	printf("New package from %s:\n%s\n\n", hash, msg);
 }
 
 int main()
 {
+	char *hash;
 	// Init.
 	the_garlic_network();
+	// Getting own hash.
+	hash = tgn_myhash();
+	printf("My hash is %s\n", hash);
 	// Set callback func.
 	tgn_callback(fn_callback);
 	// Cycle.

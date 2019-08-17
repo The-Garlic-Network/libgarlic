@@ -382,7 +382,6 @@ void _packages::garlic_status(tgnmsg &message)
 
 		(*it).ping = system_clock::now();
 		(*it).status = one.status;
-		message.show_garlic();
 		break;
 	}
 

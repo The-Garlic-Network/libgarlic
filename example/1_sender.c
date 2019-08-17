@@ -30,6 +30,7 @@ void body()
 	printf("Write address: ");
 	scanf("%s", hash);
 
+	// Text for sending.
 	buffer = "Hey dude!";
 
 	// Send package.
@@ -38,8 +39,12 @@ void body()
 
 int main()
 {
+	char *hash;
 	// Init.
 	the_garlic_network();
+	// Getting own hash.
+	hash = tgn_myhash();
+	printf("My hash is %s\n", hash);
 	// Cycle.
 	while (tgn_is_working()) {
 		body();
