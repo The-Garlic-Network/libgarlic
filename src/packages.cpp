@@ -236,6 +236,7 @@ struct tgn_pack _packages::get_one(void)
 		if (p.status == REQUEST_FIND
 			&& time - p.ping >= 15s) {
 			p.ping = system_clock::now();
+			p.attempts++;
 			msg = p;
 			break;
 		}
@@ -286,6 +287,12 @@ size_t _packages::garlic_size(void)
 		if (p.status == EMPTY_STATUS
 			&& time - p.ping >= 15s) {
 			size++;
+			continue;
+		}
+
+		if (p.status == REQUEST_FIND
+			&& p.attempts > 7) {
+			p.status = ERROR_TARGET;
 			continue;
 		}
 
@@ -374,11 +381,8 @@ void _packages::garlic_status(tgnmsg &message)
 	it = this->msgs.begin();
 
 	for (; it != this->msgs.end(); it++) {
-		if ((memcmp(one.from, (*it).to, hs) != 0 /// NOT CORRECT!!!
-			&& one.status != GOOD_TARGET)
-			|| (*it).status == GOOD_TARGET) {
+		if (memcmp(one.to, (*it).to, hs) != 0)
 			continue;
-		}
 
 		(*it).ping = system_clock::now();
 		(*it).status = one.status;
